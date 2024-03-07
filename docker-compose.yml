@@ -5,8 +5,7 @@ services:
     build:
       context: ./ui
       dockerfile: Dockerfile
-    networks:
-      - tensurf-network
+    restart: always
 
   tensurf-api:
     build:
@@ -15,11 +14,10 @@ services:
     env_file:
       - .env
     depends_on:
-      - postgres
-      - influxdb
-      - redis
-    networks:
-      - tensurf-network
+      - tensurf-postgres
+      - tensurf-influxdb
+      - tensurf-redis
+    restart: always
   
   tensurf-influxdb:
     image: influxdb:latest
@@ -31,8 +29,7 @@ services:
       INFLUXDB_ADMIN_PASSWORD: ${INFLUXDB_ADMIN_PASSWORD}
       INFLUXDB_USER: ${INFLUXDB_USER}
       INFLUXDB_USER_PASSWORD: ${INFLUXDB_USER_PASSWORD}
-    networks:
-      - tensurf-network
+    restart: always
 
   tensurf-postgres:
     image: postgres:14.1-alpine
@@ -43,15 +40,13 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    networks:
-      - tensurf-network
+    restart: always
 
   tensurf-redis:
     image: "redis:alpine"
     environment:
       REDIS_DB: ${REDIS_DB}
-    networks:
-      - tensurf-network
+    restart: always
 
 networks:
   default:
