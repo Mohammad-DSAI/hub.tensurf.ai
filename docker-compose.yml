@@ -1,0 +1,19 @@
+version: "3"
+
+services:
+  tensurf-ui:
+    build:
+      context: ./ui
+      dockerfile: Dockerfile
+
+  tensurf-api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+
+networks:
+  default:
+    external: true
+    name: tensurf-network
