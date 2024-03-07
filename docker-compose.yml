@@ -5,6 +5,8 @@ services:
     build:
       context: ./ui
       dockerfile: Dockerfile
+    networks:
+      - tensurf-network
 
   tensurf-api:
     build:
@@ -12,8 +14,54 @@ services:
       dockerfile: Dockerfile
     env_file:
       - .env
+    depends_on:
+      - postgres
+      - influxdb
+      - redis
+    networks:
+      - tensurf-network
+  
+  tensurf-influxdb:
+    image: influxdb:latest
+    volumes:
+      - tensurf_influxdb_data:/var/lib/influxdb
+    environment:
+      INFLUXDB_DB: ${INFLUXDB_DATABASE}
+      INFLUXDB_ADMIN_USER: ${INFLUXDB_ADMIN_USER}
+      INFLUXDB_ADMIN_PASSWORD: ${INFLUXDB_ADMIN_PASSWORD}
+      INFLUXDB_USER: ${INFLUXDB_USER}
+      INFLUXDB_USER_PASSWORD: ${INFLUXDB_USER_PASSWORD}
+    networks:
+      - tensurf-network
+
+  tensurf-postgres:
+    image: postgres:14.1-alpine
+    container_name: postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - tensurf-network
+
+  tensurf-redis:
+    image: "redis:alpine"
+    environment:
+      REDIS_DB: ${REDIS_DB}
+    networks:
+      - tensurf-network
 
 networks:
   default:
     external: true
     name: tensurf-network
+
+volumes:
+  tensurf_influxdb_data:
+  postgres_data:
+
+    
+
+
