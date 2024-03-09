@@ -14,7 +14,7 @@ services:
       context: ./api
       dockerfile: Dockerfile
     env_file:
-      - .api.env
+      - .env
     depends_on:
       - tensurf-postgres
       - tensurf-redis
@@ -23,8 +23,6 @@ services:
   tensurf-postgres:
     image: postgres:14.1-alpine
     container_name: postgres
-    env_file:
-      - .api.env
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
@@ -35,8 +33,6 @@ services:
 
   tensurf-redis:
     image: "redis:alpine"
-    env_file:
-      - .api.env
     environment:
       REDIS_DB: ${REDIS_DB}
     restart: always
@@ -48,7 +44,3 @@ networks:
 
 volumes:
   postgres_data:
-
-    
-
-
