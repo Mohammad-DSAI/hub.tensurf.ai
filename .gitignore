@@ -1,2 +1,4 @@
 # Environments
 .env
+.ui.env
+.api.env
