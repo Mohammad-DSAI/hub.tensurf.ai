@@ -5,8 +5,6 @@ services:
     build:
       context: ./ui
       dockerfile: Dockerfile
-    env_file:
-      - .ui.env
     restart: always
 
   tensurf-api:
