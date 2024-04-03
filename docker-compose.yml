@@ -6,16 +6,13 @@ services:
       context: ./ui
       dockerfile: Dockerfile
     restart: always
-  
+
   tensurf-daphne:
     build:
       context: ./api
-      dockerfile: Dockerfile
-    command: daphne -u /var/run/daphne/daphne.sock api.tensurf.asgi:application
+      dockerfile: Dockerfile.daphne
     env_file:
       - .env
-    environment:
-      - DJANGO_PROJECT_PATH=/api
     depends_on:
       - tensurf-postgres
       - tensurf-redis
@@ -25,12 +22,9 @@ services:
   tensurf-gunicorn:
     build:
       context: ./api
-      dockerfile: Dockerfile
-    command: gunicorn --workers=${NPROC} --bind 0.0.0.0:8001 api.tensurf.wsgi:application
+      dockerfile: Dockerfile.gunicorn
     env_file:
       - .env
-    environment:
-      - DJANGO_PROJECT_PATH=/api
     depends_on:
       - tensurf-postgres
       - tensurf-redis
@@ -46,7 +40,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     restart: always
-  
+
   tensurf-pgadmin:
     image: dpage/pgadmin4:6.1
     environment:
