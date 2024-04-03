@@ -19,8 +19,6 @@ services:
       - tensurf-redis
     volumes:
       - .:/app
-    ports:
-      - "8000:8000"
 
   tensurf-gunicorn:
     build:
@@ -34,8 +32,6 @@ services:
       - tensurf-redis
     volumes:
       - .:/app
-    ports:
-      - "8001:8001"
 
   tensurf-postgres:
     image: postgres:14.1-alpine
