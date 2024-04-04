@@ -16,8 +16,6 @@ services:
     depends_on:
       - tensurf-postgres
       - tensurf-redis
-    volumes:
-      - .:/app
 
   tensurf-gunicorn:
     build:
@@ -28,8 +26,6 @@ services:
     depends_on:
       - tensurf-postgres
       - tensurf-redis
-    volumes:
-      - .:/app
 
   tensurf-postgres:
     image: postgres:14.1-alpine
