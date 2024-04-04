@@ -16,6 +16,8 @@ services:
     depends_on:
       - tensurf-postgres
       - tensurf-redis
+    volumes:
+      - /var/run/daphne:/var/run/daphne
 
   tensurf-gunicorn:
     build:
