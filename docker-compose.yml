@@ -1,4 +1,4 @@
-version: "3"
+version: '3.8'
 
 services:
   tensurf-ui:
@@ -28,6 +28,7 @@ services:
     depends_on:
       - tensurf-postgres
       - tensurf-redis
+      - tensurf-minio
 
   tensurf-postgres:
     image: postgres:14.1-alpine
@@ -37,6 +38,8 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./postgresql.conf:/etc/postgresql/postgresql.conf
+      - ./pg_hba.conf:/etc/postgresql/pg_hba.conf
     restart: always
 
   tensurf-pgadmin:
@@ -55,6 +58,32 @@ services:
     environment:
       REDIS_DB: ${REDIS_DB}
     restart: always
+
+  tensurf-minio:
+    image: minio/minio
+    hostname: "minio"
+    volumes:
+      - ./minio:/data
+    environment:
+      MINIO_ACCESS_KEY: ${AWS_ACCESS_KEY}
+      MINIO_SECRET_KEY: ${AWS_SECRET_KEY}
+    command: 'minio server /data --console-address ":9001"'
+    ports:
+      - 9000:9000
+      - 9001:9001
+
+  minio-client:
+    image: minio/mc
+    depends_on:
+      - tensurf-minio
+    entrypoint: >
+      /bin/sh -c "
+      /usr/bin/mc config host rm expo;
+      /usr/bin/mc config host add --quiet --api s3v4 tensurf http://tensurf-minio:9000 tensurf tensurf-hub;
+      /usr/bin/mc rb --force tensurf/chatbot/;
+      /usr/bin/mc mb --quiet tensurf/chatbot/;
+      /usr/bin/mc policy set public tensurf/chatbot;
+      "
 
 networks:
   default:

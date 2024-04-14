@@ -2,3 +2,5 @@
 .env
 .ui.env
 .api.env
+
+/minio
