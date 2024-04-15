@@ -63,7 +63,7 @@ services:
     image: minio/minio
     hostname: "minio"
     volumes:
-      - ./minio:/data
+      - minio_data:/data
     environment:
       MINIO_ACCESS_KEY: ${AWS_ACCESS_KEY}
       MINIO_SECRET_KEY: ${AWS_SECRET_KEY}
@@ -72,18 +72,18 @@ services:
       - 9000:9000
       - 9001:9001
 
-  minio-client:
-    image: minio/mc
-    depends_on:
-      - tensurf-minio
-    entrypoint: >
-      /bin/sh -c "
-      /usr/bin/mc config host rm expo;
-      /usr/bin/mc config host add --quiet --api s3v4 tensurf http://tensurf-minio:9000 tensurf tensurf-hub;
-      /usr/bin/mc rb --force tensurf/chatbot/;
-      /usr/bin/mc mb --quiet tensurf/chatbot/;
-      /usr/bin/mc policy set public tensurf/chatbot;
-      "
+  # minio-client:
+  #   image: minio/mc
+  #   depends_on:
+  #     - tensurf-minio
+  #   entrypoint: >
+  #     /bin/sh -c "
+  #     /usr/bin/mc config host rm expo;
+  #     /usr/bin/mc config host add --quiet --api s3v4 tensurf http://tensurf-minio:9000 tensurf tensurf-hub;
+  #     /usr/bin/mc rb --force tensurf/chatbot/;
+  #     /usr/bin/mc mb --quiet tensurf/chatbot/;
+  #     /usr/bin/mc policy set public tensurf/chatbot;
+  #     "
 
 networks:
   default:
@@ -93,3 +93,4 @@ networks:
 volumes:
   postgres_data:
   tensurf_pgdata:
+  minio_data:
