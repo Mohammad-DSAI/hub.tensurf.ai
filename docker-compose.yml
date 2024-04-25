@@ -32,7 +32,7 @@ services:
     ports:
       - 8000:8001
     volumes:
-      - ./app/static:/app/static
+      - ./api/static:/app/static
 
   tensurf-postgres:
     image: postgres:14.1-alpine
