@@ -2,12 +2,14 @@ version: '3.8'
 
 services:
   tensurf-ui:
+    container_name: hub-tensurf-ui
     build:
       context: ./ui
       dockerfile: Dockerfile
     restart: always
 
   tensurf-daphne:
+    container_name: hub-tensurf-daphne
     build:
       context: ./api
       dockerfile: Dockerfile.daphne
@@ -16,10 +18,12 @@ services:
     depends_on:
       - tensurf-postgres
       - tensurf-redis
+      - tensurf-minio
     volumes:
       - /var/run/daphne:/var/run/daphne
 
   tensurf-gunicorn:
+    container_name: hub-tensurf-gunicorn
     build:
       context: ./api
       dockerfile: Dockerfile.gunicorn
@@ -29,12 +33,13 @@ services:
       - tensurf-postgres
       - tensurf-redis
       - tensurf-minio
-    ports:
-      - 8000:8001
+    # ports:
+    #   - 8000:8001
     volumes:
       - ./api/static:/app/static
 
   tensurf-postgres:
+    container_name: hub-tensurf-postgres
     image: postgres:14.1-alpine
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
@@ -47,6 +52,7 @@ services:
     restart: always
 
   tensurf-pgadmin:
+    container_name: hub-tensurf-pgadmin
     image: dpage/pgadmin4:6.1
     environment:
       PGADMIN_DEFAULT_EMAIL: tensurf@gmail.com
@@ -58,16 +64,18 @@ services:
     restart: always
 
   tensurf-redis:
+    container_name: hub-tensurf-redis
     image: "redis:alpine"
     environment:
       REDIS_DB: ${REDIS_DB}
     restart: always
 
   tensurf-minio:
+    container_name: hub-tensurf-minio
     image: minio/minio
     hostname: "minio"
     volumes:
-      - /mnt/tensurf-volume:/data
+      - /mnt/hub-tensurf-minio:/data
     environment:
       MINIO_ACCESS_KEY: ${AWS_ACCESS_KEY}
       MINIO_SECRET_KEY: ${AWS_SECRET_KEY}
