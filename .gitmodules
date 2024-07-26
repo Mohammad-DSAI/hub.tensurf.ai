@@ -1,8 +1,8 @@
 [submodule "api"]
 	path = api
 	url = git@github.com:TenSurf/TenSurf_Hub_Backend.git
-	branch = development
+	branch = main
 [submodule "ui"]
 	path = ui
 	url = git@github.com:TenSurf/TenSurf_Hub_Frontend.git
-	branch = dev
+	branch = main
