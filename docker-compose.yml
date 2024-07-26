@@ -9,6 +9,18 @@ services:
     environment:
       - NEXT_PUBLIC_TENSURF_URL=https://tensurf.ai
 
+  hub-tensurf-daphne:
+    build:
+      context: ./api
+      dockerfile: Dockerfile.daphne
+    env_file:
+      - .env
+    depends_on:
+      - hub-tensurf-postgres
+      - hub-tensurf-redis
+    volumes:
+      - /var/run/daphne:/var/run/daphne
+
   hub-tensurf-gunicorn:
     build:
       context: ./api
@@ -19,10 +31,6 @@ services:
       - hub-tensurf-postgres
       - hub-tensurf-redis
       - hub-tensurf-minio
-    volumes:
-      - /var/run/gunicorn:/var/run/gunicorn
-    command: >
-      sh -c "python manage.py migrate && gunicorn api.wsgi:application --bind 0.0.0.0:8000"
 
   hub-tensurf-postgres:
     image: postgres:14.1-alpine
@@ -36,25 +44,42 @@ services:
       - ./pg_hba.conf:/etc/postgresql/pg_hba.conf
     restart: always
 
-  hub-tensurf-redis:
-    image: redis:latest
-    container_name: hub-tensurf-redis
+  hub-tensurf-pgadmin:
+    image: dpage/pgadmin4:6.1
+    environment:
+      PGADMIN_DEFAULT_EMAIL: tensurf@gmail.com
+      PGADMIN_DEFAULT_PASSWORD: tensurf
     ports:
-      - 6379:6379
+      - "5050:80"
+    volumes:
+      - tensurf_pgdata:/var/lib/pgadmin
+    restart: always
+
+  hub-tensurf-redis:
+    image: "redis:alpine"
+    environment:
+      REDIS_DB: ${REDIS_DB}
+    restart: always
 
   hub-tensurf-minio:
     image: minio/minio
-    container_name: hub-tensurf-minio
-    environment:
-      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
-      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
+    hostname: "minio"
     volumes:
-      - minio_data:/data
+      - /mnt/tensurf-volume:/data
+    environment:
+      MINIO_ACCESS_KEY: ${AWS_ACCESS_KEY}
+      MINIO_SECRET_KEY: ${AWS_SECRET_KEY}
+    command: 'minio server /data --console-address ":9001"'
     ports:
       - 9000:9000
-    command: server /data
+      - 9001:9001
+
+
+networks:
+  default:
+    external: true
+    name: tensurf-network
 
 volumes:
   postgres_data:
-  minio_data:
-
+  tensurf_pgdata:
